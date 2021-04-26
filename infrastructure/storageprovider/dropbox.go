@@ -154,7 +154,7 @@ func (d *dropbox) prepareRequest(accessToken string, file io.Reader, fileName, s
 }
 
 func (d *dropbox) mapToDropboxError(responseReader io.Reader, httpStatusCode int) (dropboxError, error) {
-	byteResponse, err := io.ReadAll(responseReader)
+	byteResponse, err := ioutil.ReadAll(responseReader)
 	if err != nil {
 		return dropboxError{}, err
 	}

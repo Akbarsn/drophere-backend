@@ -1,31 +1,39 @@
-FROM debian:stretch-slim
-ARG SOURCE_LOCATION=./build
-EXPOSE 8888
+FROM golang:alpine AS builder
 
-# install dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    apt-transport-https \
-    curl \
-    ca-certificates \
-    && apt-get clean \
-    && apt-get autoremove \ 
-    && rm -rf /var/lib/apt/lists/*
+# Set necessary environmet variables needed for our image
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
-# create new user
-RUN useradd --create-home drophere
+# Move to working directory /build
+WORKDIR /build
 
-# create new directory
-RUN mkdir -p /home/drophere/drophere-service
+# Copy and download dependency using go mod
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 
-# specify directory
-WORKDIR /home/drophere/drophere-service
-COPY ${SOURCE_LOCATION} .
+# Copy the code into the container
+COPY . .
 
-# change owner to user "drophere"
-RUN chown -R drophere:drophere .
+# Build the application
+RUN go build -o main ./server/*.go
 
-USER drophere
-RUN chmod +x drophere-service
+# Move to /dist directory as the place for resulting binary folder
+WORKDIR /dist
 
-CMD ["./drophere-service"]
+# Copy binary from build to main folder
+RUN cp /build/main .
+
+# Build a small image
+FROM scratch
+
+COPY config.yaml /
+COPY ./files/ /files/
+COPY --from=builder /dist/main /
+
+EXPOSE 8080
+
+# Command to run
+ENTRYPOINT ["/main"]

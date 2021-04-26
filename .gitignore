@@ -1,3 +1,5 @@
 config.yaml
 cover.out
 .idea
+/build
+.env
