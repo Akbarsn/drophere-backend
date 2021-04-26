@@ -24,20 +24,20 @@ func isInUintSlice(u uint, slice []uint) bool {
 }
 
 // Find impl
-func (repo *UserStorageCredentialRepository) Find(filters domain.UserStorageCredentialFilters, withUserRelation bool) ([]domain.UserStorageCredential, error) {
+func (usr *UserStorageCredentialRepository) Find(filters domain.UserStorageCredentialFilters, withUserRelation bool) ([]domain.UserStorageCredential, error) {
 	creds := make([]domain.UserStorageCredential, 0)
 	usersCache := make(map[uint]domain.User)
 
 	// load users first
 	if withUserRelation && len(filters.UserIDs) > 0 {
-		for _, u := range repo.DB.Users {
+		for _, u := range usr.DB.Users {
 			if isInUintSlice(u.ID, filters.UserIDs) {
 				usersCache[u.ID] = u
 			}
 		}
 	}
 
-	for _, usc := range repo.DB.UserStorageCredentials {
+	for _, usc := range usr.DB.UserStorageCredentials {
 		if filters.UserIDs != nil && (len(filters.UserIDs) == 0 ||
 			!isInUintSlice(usc.UserID, filters.UserIDs)) {
 			continue
@@ -59,10 +59,10 @@ func (repo *UserStorageCredentialRepository) Find(filters domain.UserStorageCred
 }
 
 // FindByID impl
-func (repo *UserStorageCredentialRepository) FindByID(id uint, withUserRelation bool) (domain.UserStorageCredential, error) {
+func (usr *UserStorageCredentialRepository) FindByID(id uint, withUserRelation bool) (domain.UserStorageCredential, error) {
 	cred := domain.UserStorageCredential{}
 	found := false
-	for _, usc := range repo.DB.UserStorageCredentials {
+	for _, usc := range usr.DB.UserStorageCredentials {
 		if usc.ID == id {
 			cred = usc
 			found = true
@@ -72,7 +72,7 @@ func (repo *UserStorageCredentialRepository) FindByID(id uint, withUserRelation 
 
 	if found {
 		if withUserRelation {
-			for _, u := range repo.DB.Users {
+			for _, u := range usr.DB.Users {
 				if u.ID == cred.UserID {
 					cred.User = u
 					break
@@ -86,17 +86,17 @@ func (repo *UserStorageCredentialRepository) FindByID(id uint, withUserRelation 
 }
 
 // Create impl
-func (repo *UserStorageCredentialRepository) Create(cred domain.UserStorageCredential) (domain.UserStorageCredential, error) {
-	repo.DB.UserStorageCredentials = append(repo.DB.UserStorageCredentials, cred)
+func (usr *UserStorageCredentialRepository) Create(cred domain.UserStorageCredential) (domain.UserStorageCredential, error) {
+	usr.DB.UserStorageCredentials = append(usr.DB.UserStorageCredentials, cred)
 	return cred, nil
 }
 
 // Update impl
-func (repo *UserStorageCredentialRepository) Update(cred domain.UserStorageCredential) (domain.UserStorageCredential, error) {
+func (usr *UserStorageCredentialRepository) Update(cred domain.UserStorageCredential) (domain.UserStorageCredential, error) {
 
-	for i := range repo.DB.UserStorageCredentials {
-		if repo.DB.UserStorageCredentials[i].ID == cred.ID {
-			repo.DB.UserStorageCredentials[i] = cred
+	for i := range usr.DB.UserStorageCredentials {
+		if usr.DB.UserStorageCredentials[i].ID == cred.ID {
+			usr.DB.UserStorageCredentials[i] = cred
 			break
 		}
 	}
@@ -105,11 +105,11 @@ func (repo *UserStorageCredentialRepository) Update(cred domain.UserStorageCrede
 }
 
 // Delete impl
-func (repo *UserStorageCredentialRepository) Delete(cred domain.UserStorageCredential) error {
+func (usr *UserStorageCredentialRepository) Delete(cred domain.UserStorageCredential) error {
 
-	for i := range repo.DB.UserStorageCredentials {
-		if repo.DB.UserStorageCredentials[i].ID == cred.ID {
-			repo.DB.UserStorageCredentials = append(repo.DB.UserStorageCredentials[:i], repo.DB.UserStorageCredentials[i+1:]...)
+	for i := range usr.DB.UserStorageCredentials {
+		if usr.DB.UserStorageCredentials[i].ID == cred.ID {
+			usr.DB.UserStorageCredentials = append(usr.DB.UserStorageCredentials[:i], usr.DB.UserStorageCredentials[i+1:]...)
 			break
 		}
 	}

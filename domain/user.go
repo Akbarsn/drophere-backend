@@ -34,6 +34,13 @@ type UserCredentials struct {
 	Expiry *time.Time
 }
 
+type UserConfig struct {
+	PasswordRecoveryTokenExpiryDuration int
+	RecoverPasswordWebURL               string
+	MailerEmail                         string
+	MailerName                          string
+}
+
 // UserService abstraction
 type UserService interface {
 	Register(email, name, password string) (*User, error)

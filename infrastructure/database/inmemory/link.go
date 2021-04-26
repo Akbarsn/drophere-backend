@@ -12,18 +12,18 @@ func NewLinkRepository(db *DB) domain.LinkRepository {
 }
 
 // Create implementation
-func (repo *LinkRepository) Create(l *domain.Link) (*domain.Link, error) {
-	l.ID = uint(len(repo.DB.Links) + 1)
-	repo.DB.Links = append(repo.DB.Links, *l)
+func (lr *LinkRepository) Create(l *domain.Link) (*domain.Link, error) {
+	l.ID = uint(len(lr.DB.Links) + 1)
+	lr.DB.Links = append(lr.DB.Links, *l)
 	return l, nil
 }
 
 // Delete implementation
-func (repo *LinkRepository) Delete(l *domain.Link) error {
+func (lr *LinkRepository) Delete(l *domain.Link) error {
 
-	for i := range repo.DB.Links {
-		if repo.DB.Links[i].ID == l.ID {
-			repo.DB.Links = append(repo.DB.Links[:i], repo.DB.Links[i+1:]...)
+	for i := range lr.DB.Links {
+		if lr.DB.Links[i].ID == l.ID {
+			lr.DB.Links = append(lr.DB.Links[:i], lr.DB.Links[i+1:]...)
 			break
 		}
 	}
@@ -32,10 +32,10 @@ func (repo *LinkRepository) Delete(l *domain.Link) error {
 }
 
 // FindByID implementation
-func (repo *LinkRepository) FindByID(id uint) (*domain.Link, error) {
-	for i := range repo.DB.Links {
-		if repo.DB.Links[i].ID == id {
-			return &repo.DB.Links[i], nil
+func (lr *LinkRepository) FindByID(id uint) (*domain.Link, error) {
+	for i := range lr.DB.Links {
+		if lr.DB.Links[i].ID == id {
+			return &lr.DB.Links[i], nil
 		}
 	}
 
@@ -43,10 +43,10 @@ func (repo *LinkRepository) FindByID(id uint) (*domain.Link, error) {
 }
 
 // FindBySlug implementation
-func (repo *LinkRepository) FindBySlug(slug string) (*domain.Link, error) {
-	for i := range repo.DB.Links {
-		if repo.DB.Links[i].Slug == slug {
-			return &repo.DB.Links[i], nil
+func (lr *LinkRepository) FindBySlug(slug string) (*domain.Link, error) {
+	for i := range lr.DB.Links {
+		if lr.DB.Links[i].Slug == slug {
+			return &lr.DB.Links[i], nil
 		}
 	}
 
@@ -54,9 +54,9 @@ func (repo *LinkRepository) FindBySlug(slug string) (*domain.Link, error) {
 }
 
 // ListByUser implementation
-func (repo *LinkRepository) ListByUser(userID uint) ([]domain.Link, error) {
-	links := make([]domain.Link, 0, len(repo.DB.Links))
-	for _, link := range repo.DB.Links {
+func (lr *LinkRepository) ListByUser(userID uint) ([]domain.Link, error) {
+	links := make([]domain.Link, 0, len(lr.DB.Links))
+	for _, link := range lr.DB.Links {
 		if link.UserID == userID {
 			links = append(links, link)
 		}
@@ -66,14 +66,14 @@ func (repo *LinkRepository) ListByUser(userID uint) ([]domain.Link, error) {
 }
 
 // Update implementation
-func (repo *LinkRepository) Update(l *domain.Link) (link *domain.Link, err error) {
+func (lr *LinkRepository) Update(l *domain.Link) (link *domain.Link, err error) {
 	link = l
-	for i := range repo.DB.Links {
-		if repo.DB.Links[i].ID == l.ID {
-			repo.DB.Links[i] = *l
+	for i := range lr.DB.Links {
+		if lr.DB.Links[i].ID == l.ID {
+			lr.DB.Links[i] = *l
 			return
 		}
 	}
-	repo.DB.Links = append(repo.DB.Links, *l)
+	lr.DB.Links = append(lr.DB.Links, *l)
 	return
 }
