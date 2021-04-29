@@ -9,6 +9,7 @@ import (
 
 type AppEnvironment struct {
 	Mode                     string
+	Port                     int
 	StorageRootDirectoryName string
 	TemplatePath             string
 	PasswordRecovery         PasswordRecoveryEnvironment
@@ -31,8 +32,19 @@ func NewAppEnvironmentDriver() (*AppEnvironment, error) {
 		return nil, err
 	}
 
+	var appPort int
+	if os.Getenv("APP_PORT") == "" {
+		appPort = 8080
+	} else {
+		appPort, err = strconv.Atoi(os.Getenv("APP_PORT"))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &AppEnvironment{
 		Mode:                     os.Getenv("APP_MODE"),
+		Port:                     appPort,
 		StorageRootDirectoryName: os.Getenv("APP_STORAGE_ROOT_DIRECTORY_NAME"),
 		TemplatePath:             os.Getenv("APP_TEMPLATE_PATH"),
 		PasswordRecovery: PasswordRecoveryEnvironment{
