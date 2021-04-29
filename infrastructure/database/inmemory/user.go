@@ -29,16 +29,16 @@ func (repo *userRepository) FindByID(id uint) (*domain.User, error) {
 // Update implementation
 func (repo *userRepository) Update(u *domain.User) (*domain.User, error) {
 	updated := false
-	for i := range repo.db.users {
-		if repo.db.users[i].ID == u.ID {
-			repo.db.users[i] = *u
+	for i := range repo.db.Users {
+		if repo.db.Users[i].ID == u.ID {
+			repo.db.Users[i] = *u
 			updated = true
 			break
 		}
 	}
 
 	if !updated {
-		repo.db.users = append(repo.db.users, *u)
+		repo.db.Users = append(repo.db.Users, *u)
 	}
 	return u, nil
 }

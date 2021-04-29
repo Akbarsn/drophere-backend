@@ -8,9 +8,9 @@ import (
 
 // DB struct
 type DB struct {
-	users            []domain.User
-	links            []domain.Link
-	userStorageCreds []domain.UserStorageCredential
+	Users                  []domain.User
+	Links                  []domain.Link
+	UserStorageCredentials []domain.UserStorageCredential
 }
 
 // New func
@@ -29,7 +29,7 @@ func time2ptr(t time.Time) *time.Time {
 }
 
 func (db *DB) populate() {
-	db.users = []domain.User{
+	db.Users = []domain.User{
 		{ID: 1, Email: "user@drophere.link", Name: "User", Password: "123456", DropboxToken: nil, DriveToken: nil},
 		{ID: 357, Email: "user_357@drophere.link", Name: "User 357", Password: "123456", DropboxToken: nil, DriveToken: nil},
 		{
@@ -50,13 +50,13 @@ func (db *DB) populate() {
 		},
 	}
 
-	db.links = []domain.Link{
-		{ID: 1, UserID: 1, User: &db.users[0], Title: "Drop file here", Slug: "drop-here", Password: "123098", Description: "drop a file here"},
-		{ID: 2, UserID: 1, User: &db.users[0], Title: "Test Link 2", Slug: "test-link-2", Password: "", Description: "no description"},
-		{ID: 3, UserID: 357, User: &db.users[1], Title: "Another link", Slug: "another-link", Password: "999", Description: "nil here"},
+	db.Links = []domain.Link{
+		{ID: 1, UserID: 1, User: &db.Users[0], Title: "Drop file here", Slug: "drop-here", Password: "123098", Description: "drop a file here"},
+		{ID: 2, UserID: 1, User: &db.Users[0], Title: "Test Link 2", Slug: "test-link-2", Password: "", Description: "no description"},
+		{ID: 3, UserID: 357, User: &db.Users[1], Title: "Another link", Slug: "another-link", Password: "999", Description: "nil here"},
 	}
 
-	db.userStorageCreds = []domain.UserStorageCredential{
+	db.UserStorageCredentials = []domain.UserStorageCredential{
 		{
 			ID:                 2000,
 			UserID:             1,
@@ -70,9 +70,9 @@ func (db *DB) populate() {
 
 // FindUserByEmail func
 func (db *DB) FindUserByEmail(email string) (*domain.User, error) {
-	for i, u := range db.users {
+	for i, u := range db.Users {
 		if u.Email == email {
-			return &db.users[i], nil
+			return &db.Users[i], nil
 		}
 	}
 	return nil, domain.ErrUserNotFound
@@ -80,9 +80,9 @@ func (db *DB) FindUserByEmail(email string) (*domain.User, error) {
 
 // FindUserByID func
 func (db *DB) FindUserByID(id uint) (*domain.User, error) {
-	for i, u := range db.users {
+	for i, u := range db.Users {
 		if u.ID == id {
-			return &db.users[i], nil
+			return &db.Users[i], nil
 		}
 	}
 	return nil, domain.ErrUserNotFound
@@ -90,6 +90,6 @@ func (db *DB) FindUserByID(id uint) (*domain.User, error) {
 
 // CreateUser func
 func (db *DB) CreateUser(u *domain.User) (*domain.User, error) {
-	db.users = append(db.users, *u)
+	db.Users = append(db.Users, *u)
 	return u, nil
 }
