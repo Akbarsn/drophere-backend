@@ -14,7 +14,7 @@ func NewLinkRepository(db *inmemory.DB) domain.LinkRepository {
 	return &LinkRepository{db}
 }
 
-func (lr LinkRepository) Create(l *domain.Link) (*domain.Link, error) {
+func (lr *LinkRepository) Create(l *domain.Link) (*domain.Link, error) {
 	l.ID = uint(len(lr.DB.Links) + 1)
 	lr.DB.Links = append(lr.DB.Links, *l)
 	return l, nil

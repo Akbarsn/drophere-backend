@@ -13,19 +13,19 @@ func NewUserRepository(db *inmemory.DB) domain.UserRepository {
 	return &UserRepository{db}
 }
 
-func (ur UserRepository) Create(u *domain.User) (*domain.User, error) {
+func (ur *UserRepository) Create(u *domain.User) (*domain.User, error) {
 	return ur.DB.CreateUser(u)
 }
 
-func (ur UserRepository) FindByEmail(email string) (*domain.User, error) {
+func (ur *UserRepository) FindByEmail(email string) (*domain.User, error) {
 	return ur.DB.FindUserByEmail(email)
 }
 
-func (ur UserRepository) FindByID(id uint) (*domain.User, error) {
+func (ur *UserRepository) FindByID(id uint) (*domain.User, error) {
 	return ur.DB.FindUserByID(id)
 }
 
-func (ur UserRepository) Update(u *domain.User) (*domain.User, error) {
+func (ur *UserRepository) Update(u *domain.User) (*domain.User, error) {
 	updated := false
 	for i := range ur.DB.Users {
 		if ur.DB.Users[i].ID == u.ID {
