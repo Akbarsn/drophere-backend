@@ -29,7 +29,7 @@ func fileUploadHandler(
 		w.Header().Set("Content-Type", "application/json")
 
 		// get file
-		f, fileHeader, err := r.FormFile("file")
+		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
 			if debug {
 				log.Println("read file: ", err)
@@ -105,7 +105,7 @@ func fileUploadHandler(
 			domain.StorageProviderCredential{
 				UserAccessToken: l.UserStorageCredential.ProviderCredential,
 			},
-			f,
+			file,
 			fileHeader.Filename,
 			l.Slug,
 		)
