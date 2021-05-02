@@ -50,7 +50,7 @@ func NewUserUseCase(
 	}
 }
 
-func (uuc UserUseCase) Register(email, name, password string) (*domain.User, error) {
+func (uuc *UserUseCase) Register(email, name, password string) (*domain.User, error) {
 	user, err := uuc.UserRepoMysql.FindByEmail(email)
 	if err != nil && err != domain.ErrUserNotFound {
 		return nil, err
@@ -72,7 +72,7 @@ func (uuc UserUseCase) Register(email, name, password string) (*domain.User, err
 	return uuc.UserRepoMysql.Create(user)
 }
 
-func (uuc UserUseCase) Auth(email, password string) (*domain.UserCredentials, error) {
+func (uuc *UserUseCase) Auth(email, password string) (*domain.UserCredentials, error) {
 	user, err := uuc.UserRepoMysql.FindByEmail(email)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (uuc UserUseCase) Auth(email, password string) (*domain.UserCredentials, er
 	return uuc.Authenticator.Authenticate(user)
 }
 
-func (uuc UserUseCase) Update(userID uint, name, password, oldPassword *string) (*domain.User, error) {
+func (uuc *UserUseCase) Update(userID uint, name, password, oldPassword *string) (*domain.User, error) {
 	u, err := uuc.UserRepoMysql.FindByID(userID)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (uuc UserUseCase) Update(userID uint, name, password, oldPassword *string) 
 	return uuc.UserRepoMysql.Update(u)
 }
 
-func (uuc UserUseCase) ConnectStorageProvider(userID, providerID uint, providerCredential string) error {
+func (uuc *UserUseCase) ConnectStorageProvider(userID, providerID uint, providerCredential string) error {
 	storageProvider, err := uuc.StorageProviderPool.Get(providerID)
 	if err != nil {
 		return err
@@ -158,7 +158,7 @@ func (uuc UserUseCase) ConnectStorageProvider(userID, providerID uint, providerC
 	return err
 }
 
-func (uuc UserUseCase) DisconnectStorageProvider(userID, providerID uint) error {
+func (uuc *UserUseCase) DisconnectStorageProvider(userID, providerID uint) error {
 	storageProvider, err := uuc.StorageProviderPool.Get(providerID)
 	if err != nil {
 		return err
@@ -187,13 +187,13 @@ func (uuc UserUseCase) DisconnectStorageProvider(userID, providerID uint) error 
 	return nil
 }
 
-func (uuc UserUseCase) ListStorageProviders(userID uint) ([]domain.UserStorageCredential, error) {
+func (uuc *UserUseCase) ListStorageProviders(userID uint) ([]domain.UserStorageCredential, error) {
 	return uuc.UserStorageRepoMysql.Find(domain.UserStorageCredentialFilters{
 		UserIDs: []uint{userID},
 	}, false)
 }
 
-func (uuc UserUseCase) UpdateStorageToken(userID uint, dropboxToken *string) (*domain.User, error) {
+func (uuc *UserUseCase) UpdateStorageToken(userID uint, dropboxToken *string) (*domain.User, error) {
 	u, err := uuc.UserRepoMysql.FindByID(userID)
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func (uuc UserUseCase) UpdateStorageToken(userID uint, dropboxToken *string) (*d
 	return uuc.UserRepoMysql.Update(u)
 }
 
-func (uuc UserUseCase) sendPasswordRecoveryTokenToEmail(to domain.MailAddress, subject, email, token string) error {
+func (uuc *UserUseCase) sendPasswordRecoveryTokenToEmail(to domain.MailAddress, subject, email, token string) error {
 
 	// preparing template
 	htmlTmpl := uuc.HtmlTemplates.Lookup("request_password_recovery_html")
@@ -258,7 +258,7 @@ func (uuc UserUseCase) sendPasswordRecoveryTokenToEmail(to domain.MailAddress, s
 	)
 }
 
-func (uuc UserUseCase) RequestPasswordRecovery(email string) error {
+func (uuc *UserUseCase) RequestPasswordRecovery(email string) error {
 	u, err := uuc.UserRepoMysql.FindByEmail(email)
 	if err != nil {
 		return err
@@ -298,7 +298,7 @@ func (uuc UserUseCase) RequestPasswordRecovery(email string) error {
 	return nil
 }
 
-func (uuc UserUseCase) RecoverPassword(email, token, newPassword string) error {
+func (uuc *UserUseCase) RecoverPassword(email, token, newPassword string) error {
 	u, err := uuc.UserRepoMysql.FindByEmail(email)
 	if err != nil {
 		return err
