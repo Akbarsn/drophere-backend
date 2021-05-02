@@ -1,8 +1,7 @@
-package router
+package routes
 
 import (
 	"log"
-	"net/http"
 	"path/filepath"
 	"time"
 
@@ -13,12 +12,15 @@ import (
 	drophere_go "github.com/bccfilkom/drophere-go"
 	_fileUploadHandler "github.com/bccfilkom/drophere-go/app/file_upload/delivery/http"
 	_fileUploadUseCase "github.com/bccfilkom/drophere-go/app/file_upload/usecase"
+	_linkRepository "github.com/bccfilkom/drophere-go/app/link/repository/mysql"
 	_linkUseCase "github.com/bccfilkom/drophere-go/app/link/usecase"
+	_migrationHandler "github.com/bccfilkom/drophere-go/app/migration/delivery/http"
+	_migrationRepository "github.com/bccfilkom/drophere-go/app/migration/repository"
+	_migrationUseCase "github.com/bccfilkom/drophere-go/app/migration/usecase"
+	_userRepository "github.com/bccfilkom/drophere-go/app/user/repository/mysql"
 	_userUseCase "github.com/bccfilkom/drophere-go/app/user/usecase"
+	_userStorageRepository "github.com/bccfilkom/drophere-go/app/user_storage/repository/mysql"
 	"github.com/bccfilkom/drophere-go/domain"
-	_linkRepository "github.com/bccfilkom/drophere-go/infrastructure/database/mysql"
-	_userRepository "github.com/bccfilkom/drophere-go/infrastructure/database/mysql"
-	_userStorageRepository "github.com/bccfilkom/drophere-go/infrastructure/database/mysql"
 	"github.com/bccfilkom/drophere-go/utils/db_driver"
 	"github.com/bccfilkom/drophere-go/utils/env_driver"
 	"github.com/bccfilkom/drophere-go/utils/jwt_tools"
@@ -74,7 +76,7 @@ func (r *Router) NewChiRoutes() {
 	userRepo := _userRepository.NewUserRepository(db)
 
 	// UserStorage
-	userStorageRepo := _userStorageRepository.NewUserStorageCredentialRepository(db)
+	userStorageRepo := _userStorageRepository.NewUserStorageRepository(db)
 
 	// Link
 	linkRepo := _linkRepository.NewLinkRepository(db)
@@ -143,8 +145,7 @@ func (r *Router) NewChiRoutes() {
 	resolver := drophere_go.NewResolver(userUseCase, jwtAuth, linkUseCase)
 
 	// Setup Router
-	router := chi.NewRouter()
-	router.Use(cors.New(cors.Options{
+	r.Router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
@@ -152,22 +153,22 @@ func (r *Router) NewChiRoutes() {
 	}).Handler)
 
 	// router.Use(jwt_tools.Middleware())
-	router.Use(middleware.RequestID)
-	router.Use(middleware.RealIP)
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
+	r.Router.Use(middleware.RequestID)
+	r.Router.Use(middleware.RealIP)
+	r.Router.Use(middleware.Logger)
+	r.Router.Use(middleware.Recoverer)
+
+	// File Upload router
+	fileUploadUsecase := _fileUploadUseCase.NewFileUploadUseCase(userUseCase, linkUseCase, storageProviderPool)
+	_fileUploadHandler.NewFileUploadHandler(r.Router, fileUploadUsecase)
+
+	// Migration router
+	migrationRepository := _migrationRepository.NewMigrationRepository(db)
+	migrationUseCase := _migrationUseCase.NewMigrationUseCase(migrationRepository)
+	_migrationHandler.NewMigrationHandler(r.Router, migrationUseCase)
 
 	// Handler for GraphQL
-	router.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	router.Handle("/query", handler.GraphQL(drophere_go.NewExecutableSchema(drophere_go.Config{Resolvers: resolver})))
+	r.Router.Handle("/", handler.Playground("GraphQL playground", "/query"))
+	r.Router.Handle("/query", handler.GraphQL(drophere_go.NewExecutableSchema(drophere_go.Config{Resolvers: resolver})))
 
-	// Handler for File Upload
-	fileUploadUsecase := _fileUploadUseCase.NewFileUploadUseCase(userUseCase, linkUseCase, storageProviderPool)
-	_fileUploadHandler.NewFileUploadHandler(router, fileUploadUsecase)
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", appEnv.Port)
-	err = http.ListenAndServe(":"+appEnv.Port, router)
-	if err != nil {
-		log.Fatal(err)
-	}
 }

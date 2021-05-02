@@ -7,6 +7,7 @@ import (
 
 	"github.com/bccfilkom/drophere-go/utils/env_driver"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func NewMysqlConn(env *env_driver.DatabaseEnvironment) (*gorm.DB, error) {
@@ -15,7 +16,7 @@ func NewMysqlConn(env *env_driver.DatabaseEnvironment) (*gorm.DB, error) {
 		env.Password,
 		env.Host,
 		env.Port,
-		env.Password)
+		env.Name)
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
