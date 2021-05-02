@@ -21,7 +21,5 @@ func New(dsn string) (*gorm.DB, error) {
 	db.DB().SetMaxOpenConns(100)
 	db.DB().SetConnMaxLifetime(time.Minute)
 
-	// db = db.Set("gorm:auto_preload", true)
-
 	return db, nil
 }
